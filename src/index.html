@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Three.js is cool!</title>
+    <link rel="stylesheet" href="./main.css">  
+    <link href="./index.js">
+</head>
+<!-- run a live server then run index.html -->
+<body> 
+ <div id="container" class="container">
+     <div>
+         
+         <h1> Hello People! 
+             <span><br/>Threejs is pretty cool! </span>
+            </h1>  
+     </div>  
+ </div>
+    
+
+    <!-- these scripts is like bootstrap to access libraries instead of loading files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.5/dat-gui.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+
+    <!-- the script below will hold the code for our page -->
+    <script>
+        // we need 3 things: 1. scene 2. camera 3.renderer 4. lighting
+        const scene = new THREE.Scene(); 
+
+            //camera 
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.01, 100);
+            camera.position.z = 5;
+
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true }); //antialias makes it less jagged edges 
+        renderer.setClearColor("#e5e5e5"); //this is background color
+        renderer.setSize(window.innerWidth, window.innerHeight); //size can be hard coded or adjust to window
+
+        document.body.appendChild(renderer.domElement); //this creates our canvas element using renderer settings 
+
+        window.addEventListener( '[resize', () => { //to make it responsive so reset renderer size and camera aspect
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight; 
+
+            camera.updateProjectionMatrix(); 
+        })
+
+        
+        //raycaster & mouse for objective interactivity 
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ color: "white"});
+            // const mesh = new THREE.Mesh(geometry, material);
+            // mesh.position.y = 2;
+            // scene.add(mesh);
+
+            //so let us instead of this commented put random meshes all over the screen
+            randomMesh = -5; 
+            for (let i = 0; i < 35; i++) {
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (Math.random() - 0.5) *10;
+                mesh.position.y = (Math.random() - 0.5) *10;
+                mesh.position.z = (Math.random() - 0.52) *10;
+
+                scene.add(mesh);
+                randomMesh +=1; 
+            }
+
+
+    //add 3D elements in geometry forms + material = Mesh which represents 3D elements, objects, items
+        // const geometry = new THREE.SphereGeometry(1, 4, 10);
+        // const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+        // const boxMaterial = new THREE.MeshLambertMaterial({ color: "blue"});
+        // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        //     // mesh.position.x = 2;
+        //     // mesh.position.x = - 2;
+        //     // mesh.position.z = 2;
+        //     // mesh.rotation.set(45, 0, 0);
+        //     // mesh.scale.set(1,2,1);
+        //     //now if we want to do thigs with these meshes like rotate them, or perfomr 
+        //     //do effect on them then we need to do that inside the render function or animate function
+        //     scene.add(boxMesh);
+
+        // //add lighting to scene
+        // const light = new THREE.PointLight(0xffffff, 1, 1000); //color, intensity, distance of 500
+        //     light.position.set(0, 0, 0);
+        //     scene.add(light);
+
+            const light = new THREE.PointLight(0xffffff, 2, 1000); //color, intensity, distance of 500
+            light.position.set(0, 0, 25);
+            scene.add(light);
+
+
+            // renderer.render(scene, camera); //so this when rendering will distort mesh shapes, forms display so we put in a function 
+            const render = function() {
+                requestAnimationFrame(render); //requests frame per seoond refresh on brwoser to adjust 
+
+                    //animate rotation
+                    // mesh.rotation.x += 0.10; //this would be difficult with complex animations 
+                    // mesh.rotation.y += 0.01; //can use greensock animation platform to make it easier
+                    // mesh.rotation.z += 0.02; //timeline or TweenMax we scripted 
+
+
+                renderer.render(scene, camera);
+            }
+
+                function onMouseMove(event) {
+                    event.preventDefault(); //prevents from default click
+
+                    mouse.x = ( event.clientX / window.innerWidth ) *2 -1; //these are from docs 
+                    mouse.y = - ( event.clientY / window.innerHeight ) *2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera); //used to trace the mouse 
+
+                    const intersects = raycaster.intersectObjects(scene.children, true);
+                    for (let i = 0; i < intersects.length; i++) {
+                             this.timeLine = new TimelineMax();
+                            this.timeLine.to(intersects[i].object.scale, 1, {x: 2, ease: Expo.easeOut}); //adn we can play and add to this
+                            this.timeLine.to(intersects[i].object.scale, .5, {y: .5, ease: Expo.easeOut}); 
+                            this.timeLine.to(intersects[i].object.position, 1.5, {z: 3, ease: Expo.easeOut}); 
+                            this.timeLine.to(intersects[i].object.rotation, .5, {x: 2, ease: Expo.easeOut}); 
+                            this.timeLine.to(intersects[i].object.scale, .5, {y: Math.PI* .5, ease: Expo.easeOut}, "=-1.5");
+
+                    }
+                }
+
+            render();
+
+            //     //greensock Timeline effect using TweenMax
+            // // this.timeLine = new TimelineMax().delay(.3);
+            // this.timeLine = new TimelineMax({paused: true });
+            // this.timeLine.to(mesh.scale, 1, {x: 2, ease: Expo.easeOut}); //adn we can play and add to this
+            // this.timeLine.to(mesh.scale, .5, {x: .5, ease: Expo.easeOut}); 
+            // this.timeLine.to(mesh.position, .5, {x: 3, ease: Expo.easeOut}); 
+            // this.timeLine.to(mesh.rotation, .5, {x: 2, ease: Expo.easeOut}); 
+            // this.timeLine.to(mesh.scale, .5, {y: Math.PI* .5, ease: Expo.easeOut}, "=-1.5"); 
+            // //to make it interactive
+            // // document.body.addEventListener('click', () => {
+            // //     this.timeLine.play(); //this makes animation when clicked anywhere on screen
+            // // }) 
+            
+            //to make it specific object we need RayCaster and mouse variable using THREE
+            window.addEventListener('mousemove', onMouseMove);
+
+    </script>
+    </body>
+</html>
